@@ -1,4 +1,4 @@
-package com.example.demo.model.requests;
+package com.ecommerce.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
