@@ -5,17 +5,25 @@ import com.ecommerce.model.persistence.User;
 import com.ecommerce.model.persistence.repositories.CartRepository;
 import com.ecommerce.model.persistence.repositories.UserRepository;
 import com.ecommerce.model.requests.CreateUserRequest;
+import com.ecommerce.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private TokenProvider tokenProvider;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -41,11 +49,27 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
         User user = new User();
         user.setUsername(createUserRequest.getUsername());
-        user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
         Cart cart = new Cart();
         cartRepository.save(cart);
         user.setCart(cart);
         userRepository.save(user);
-        return ResponseEntity.ok(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", tokenProvider.generateToken(user));
+        return new ResponseEntity<>(user, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody CreateUserRequest createUserRequest) {
+        User user = userRepository.findByUsername(createUserRequest.getUsername());
+        if (Objects.isNull(user)) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!passwordEncoder.matches(createUserRequest.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", tokenProvider.generateToken(user));
+        return new ResponseEntity<>(user, headers, HttpStatus.OK);
     }
 }
