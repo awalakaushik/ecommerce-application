@@ -42,7 +42,7 @@ public class TokenProvider {
 
     public boolean validateToken(String authToken) {
         try {
-            JWTVerifier jwtVerifier = JWT.require(HMAC512(jwtSecret)).build();
+            JWTVerifier jwtVerifier = JWT.require(HMAC512(jwtSecret.getBytes())).build();
             jwtVerifier.verify(authToken);
             return true;
         } catch (JWTVerificationException exception) {
