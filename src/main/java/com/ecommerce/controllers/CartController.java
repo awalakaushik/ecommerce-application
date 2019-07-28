@@ -10,10 +10,7 @@ import com.ecommerce.model.requests.ModifyCartRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -29,23 +26,21 @@ public class CartController {
     @Autowired
     private ItemRepository itemRepository;
 
-    private ResponseEntity<Cart> performCartOperation(ModifyCartRequest request, OperationEnum operation) {
-        User user = userRepository.findByUsername(request.getUsername());
+    private ResponseEntity<Cart> performCartOperation(String username, ModifyCartRequest body, OperationEnum operation) {
+        User user = userRepository.findByUsername(username);
         if (null == user) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        Optional<Item> item = itemRepository.findById(request.getItemId());
+        Optional<Item> item = itemRepository.findById(body.getItemId());
         if (!item.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         Cart cart = user.getCart();
         switch (operation) {
             case ADD:
-                IntStream.range(0, request.getQuantity())
-                        .forEach(i -> cart.addItem(item.get()));
+                IntStream.range(0, body.getQuantity()).forEach(i -> cart.addItem(item.get()));
             case REMOVE:
-                IntStream.range(0, request.getQuantity())
-                        .forEach(i -> cart.removeItem(item.get()));
+                IntStream.range(0, body.getQuantity()).forEach(i -> cart.removeItem(item.get()));
             default:
                 break;
         }
@@ -54,13 +49,13 @@ public class CartController {
     }
 
     @PostMapping("/addToCart")
-    public ResponseEntity<Cart> addToCart(@RequestBody ModifyCartRequest request) {
-        return performCartOperation(request, OperationEnum.ADD);
+    public ResponseEntity<Cart> addToCart(@RequestAttribute("username") String username, @RequestBody ModifyCartRequest body) {
+        return performCartOperation(username, body, OperationEnum.ADD);
     }
 
     @PostMapping("/removeFromCart")
-    public ResponseEntity<Cart> removeFromCart(@RequestBody ModifyCartRequest request) {
-        return performCartOperation(request, OperationEnum.REMOVE);
+    public ResponseEntity<Cart> removeFromCart(@RequestAttribute("username") String username, @RequestBody ModifyCartRequest body) {
+        return performCartOperation(username, body, OperationEnum.REMOVE);
     }
 
     private enum OperationEnum {

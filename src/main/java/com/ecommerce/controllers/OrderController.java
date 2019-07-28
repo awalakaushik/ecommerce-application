@@ -21,8 +21,8 @@ public class OrderController {
     private OrderRepository orderRepository;
 
 
-    @PostMapping("/submit/{username}")
-    public ResponseEntity<UserOrder> submit(@PathVariable String username) {
+    @PostMapping("/submit")
+    public ResponseEntity<UserOrder> submit(@RequestAttribute("username") String username) {
         User user = userRepository.findByUsername(username);
         if (null == user) {
             return ResponseEntity.notFound().build();
@@ -32,8 +32,8 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping("/history/{username}")
-    public ResponseEntity<List<UserOrder>> getOrdersForUser(@PathVariable String username) {
+    @GetMapping("/history")
+    public ResponseEntity<List<UserOrder>> getOrdersForUser(@RequestAttribute("username") String username) {
         User user = userRepository.findByUsername(username);
         if (null == user) {
             return ResponseEntity.notFound().build();
