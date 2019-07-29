@@ -39,8 +39,10 @@ public class CartController {
         switch (operation) {
             case ADD:
                 IntStream.range(0, body.getQuantity()).forEach(i -> cart.addItem(item.get()));
+                break;
             case REMOVE:
                 IntStream.range(0, body.getQuantity()).forEach(i -> cart.removeItem(item.get()));
+                break;
             default:
                 break;
         }
