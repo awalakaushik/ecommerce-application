@@ -36,6 +36,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUsernameFromJWT(jwt);
+                logger.info("Request contains valid JWT for username: {}", username);
                 User user = userRepository.findByUsername(username);
                 List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
                 grantedAuthorities.add(new SimpleGrantedAuthority("Authenticated"));

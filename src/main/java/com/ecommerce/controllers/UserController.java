@@ -6,6 +6,8 @@ import com.ecommerce.model.persistence.repositories.CartRepository;
 import com.ecommerce.model.persistence.repositories.UserRepository;
 import com.ecommerce.model.requests.CreateUserRequest;
 import com.ecommerce.security.TokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -47,6 +51,7 @@ public class UserController {
 
     @GetMapping("/userInfo")
     public ResponseEntity<User> getUserInfo(@RequestAttribute("username") String username) {
+        logger.info("Get information for username: {}", username);
         User user = userRepository.findByUsername(username);
         return null == user ? ResponseEntity.notFound().build() : ResponseEntity.ok(user);
     }
@@ -62,6 +67,7 @@ public class UserController {
         userRepository.save(user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", tokenProvider.generateToken(user));
+        logger.info("New user created with username: {}", user.getUsername());
         return new ResponseEntity<>(user, headers, HttpStatus.OK);
     }
 
@@ -76,6 +82,7 @@ public class UserController {
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", tokenProvider.generateToken(user));
+        logger.info("User logged in with username: {}", user.getUsername());
         return new ResponseEntity<>(user, headers, HttpStatus.OK);
     }
 }
