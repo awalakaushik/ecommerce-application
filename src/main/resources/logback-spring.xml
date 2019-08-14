@@ -6,8 +6,8 @@
         </layout>
     </appender>
     <appender name="SPLUNK" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
-        <url>http://ec2-54-153-66-249.us-west-1.compute.amazonaws.com:8088</url>
-        <token>3236f6d1-2d41-4601-8fcb-c78b262a9638</token>
+        <url>http://ec2-54-153-8-54.us-west-1.compute.amazonaws.com:8088</url>
+        <token>1b953b89-7216-449f-8627-46aa6e4d26f8</token>
         <disableCertificateValidation>true</disableCertificateValidation>
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg</pattern>
